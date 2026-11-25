@@ -1,0 +1,303 @@
+
+.app {
+  min-height: 100vh;
+  background: #080e1c;
+  color: #edf2ff;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 6%;
+  border-bottom: 1px solid #233047;
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand strong {
+  font-size: 23px;
+}
+
+.brand small {
+  display: block;
+  color: #94a3b8;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+}
+
+.logo {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.badge {
+  color: #93c5fd;
+  background: #172a46;
+  border: 1px solid #29466e;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.container {
+  max-width: 950px;
+  margin: auto;
+  padding: 45px 24px;
+}
+
+.hero {
+  text-align: center;
+  padding: 25px 0 45px;
+}
+
+.eyebrow {
+  color: #60a5fa;
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-weight: 700;
+}
+
+.hero h1 {
+  font-size: clamp(32px, 6vw, 58px);
+  line-height: 1.15;
+  letter-spacing: -2px;
+  margin: 20px 0;
+}
+
+.hero h1 span {
+  color: #60a5fa;
+}
+
+.hero p,
+.panel p {
+  color: #94a3b8;
+  line-height: 1.7;
+}
+
+.panel {
+  background: #111b2e;
+  border: 1px solid #263650;
+  border-radius: 18px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+
+.panel label {
+  display: block;
+  font-size: 13px;
+  margin: 18px 0 8px;
+  color: #cbd5e1;
+}
+
+textarea {
+  width: 100%;
+  min-height: 165px;
+  resize: vertical;
+  border-radius: 12px;
+  background: #080e1c;
+  border: 1px solid #334155;
+  color: #f1f5f9;
+  padding: 18px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+textarea:focus {
+  outline: 2px solid #60a5fa;
+}
+
+.textarea-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #94a3b8;
+  font-size: 12px;
+  margin: 12px 0 20px;
+}
+
+.text-button {
+  background: transparent;
+  color: #93c5fd;
+  border: none;
+  cursor: pointer;
+}
+
+.analyze-button {
+  width: 100%;
+  padding: 16px;
+  color: white;
+  background: linear-gradient(135deg, #2563eb, #6d28d9);
+  border: 0;
+  border-radius: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.examples button {
+  background: #1e293b;
+  color: #cbd5e1;
+  padding: 8px 15px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.metric-label {
+  color: #94a3b8;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.results-grid h2 {
+  font-size: 34px;
+  margin-top: 16px;
+}
+
+.positive {
+  color: #4ade80;
+}
+
+.negative {
+  color: #f87171;
+}
+
+.neutral {
+  color: #cbd5e1;
+}
+
+.score {
+  color: #60a5fa;
+}
+
+.metric {
+  margin: 22px 0;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  text-transform: capitalize;
+  font-size: 14px;
+}
+
+.track {
+  height: 10px;
+  border-radius: 20px;
+  background: #263650;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+.fill.positive {
+  background: #4ade80;
+}
+
+.fill.neutral {
+  background: #94a3b8;
+}
+
+.fill.negative {
+  background: #f87171;
+}
+
+.note {
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+}
+
+.empty-state h3 {
+  color: #cbd5e1;
+}
+
+.error {
+  background: #3b1725;
+  color: #fca5a5;
+  padding: 14px;
+  margin-top: 18px;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+footer {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 2;
+  padding: 30px;
+  border-top: 1px solid #233047;
+}
+
+@media (max-width: 600px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  .navbar {
+    padding: 18px;
+  }
+
+  .brand strong {
+    font-size: 18px;
+  }
+
+  .badge {
+    font-size: 9px;
+  }
+}

@@ -6,3 +6,7 @@ pandas
 numpy
 pytest
 httpx
+pyarrow
+joblib
+matplotlib
+seaborn

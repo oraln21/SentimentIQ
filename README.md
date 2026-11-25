@@ -196,6 +196,90 @@ Initial local test results:
 - 0 tests failed
 - 1 dependency deprecation warning
 
+---
+
+## Machine Learning Model
+
+SentimentIQ includes a custom-trained supervised
+machine learning model using TF-IDF feature extraction
+and Logistic Regression.
+
+The model is benchmarked against the VADER rule-based
+sentiment analysis engine.
+
+### Dataset
+
+- Dataset: Financial PhraseBank (sentences_allagree)
+- Total cleaned records: 2,259
+- Training samples: 1,807
+- Testing samples: 452
+- Training/testing split: 80/20
+- Classification: Positive, Negative and Neutral
+- Random seed: 42
+
+### Machine Learning Pipeline
+
+```mermaid
+flowchart TD
+    A[Financial PhraseBank Dataset] --> B[Data Cleaning]
+    B --> C[Stratified Train Test Split]
+    C --> D[TF-IDF Vectorization]
+    D --> E[Logistic Regression]
+    E --> F[Model Evaluation]
+    F --> G[Performance Comparison]
+```
+
+### Model Performance
+
+Both approaches were evaluated using the same
+held-out test dataset.
+
+| Metric | Logistic Regression | VADER |
+| --- | ---: | ---: |
+| Accuracy | 88.72% | 56.86% |
+| Macro Precision | 84.62% | 54.79% |
+| Macro Recall | 85.56% | 50.92% |
+| Macro F1-score | 85.08% | 48.74% |
+
+The custom-trained model achieved an accuracy
+improvement of approximately 31.86 percentage
+points over the VADER baseline on this dataset.
+
+### Performance Comparison
+
+![Model Performance](docs/evaluation/model-comparison.png)
+
+### Logistic Regression Confusion Matrix
+
+![ML Confusion Matrix](docs/evaluation/ml-confusion-matrix.png)
+
+### VADER Confusion Matrix
+
+![VADER Confusion Matrix](docs/evaluation/vader-confusion-matrix.png)
+
+### Reproducing the Experiment
+
+```bash
+python ml/prepare_data.py
+python ml/train_model.py
+python -m ml.evaluate_model
+```
+
+### Research Limitations
+
+- The dataset focuses on financial English text.
+- Results may not generalise to other text domains.
+- Class imbalance is addressed using balanced
+  class weights.
+- Further evaluation on independent datasets is needed.
+- Dataset and trained model files are excluded from
+  the public repository due to licensing considerations.
+- The trained model is not yet integrated into the
+  web application.
+
+---
+
+
 ## Limitations
 
 - Currently designed for English text.
@@ -203,19 +287,32 @@ Initial local test results:
 - Sentiment scores are not calibrated confidence probabilities.
 - Sarcasm and complex contextual meaning may reduce accuracy.
 
+
 ## Development Roadmap
 
 - [x] Project architecture
-- [x] Sentiment analysis engine
+- [x] NLP sentiment analysis engine
 - [x] FastAPI backend
-- [x] Input validation
-- [x] Automated testing
-- [ ] Machine learning model training
-- [ ] Model performance evaluation
-- [ ] React frontend
-- [ ] Data visualisation dashboard
+- [x] Input validation and error handling
+- [x] Automated backend testing
+- [x] React and TypeScript frontend
+- [x] Responsive user interface
+- [x] Frontend and backend integration
+- [x] Sentiment data visualisation
+- [x] Production build
+- [x] Application screenshots
+- [x] Dataset preparation and preprocessing
+- [x] TF-IDF feature extraction
+- [x] Custom machine learning model training
+- [x] Model performance evaluation
+- [x] VADER and Logistic Regression comparison
+- [x] Confusion matrix visualisation
+- [ ] Machine learning API integration
+- [ ] Interactive model selection
+- [ ] Automated frontend testing
 - [ ] GitHub Actions CI/CD
-- [ ] Application deployment
+- [ ] Public application deployment
+
 
 ## Author
 

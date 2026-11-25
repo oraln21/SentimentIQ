@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+vaderSentiment
+scikit-learn
+pandas
+numpy
+pytest
+httpx

@@ -24,6 +24,49 @@ SentimentIQ is a natural language processing platform designed to analyse Englis
 
 The project combines sentiment analysis, REST API development and automated software testing to demonstrate practical software engineering and artificial intelligence concepts.
 
+---
+
+## Application Demo
+
+SentimentIQ provides an interactive dashboard for real-time
+sentiment analysis, combining a modern React interface
+with a Python FastAPI backend.
+
+### Positive Sentiment Analysis
+
+The application identifies positive emotions in English text
+and displays the compound sentiment score and sentiment breakdown.
+
+![Positive Sentiment Analysis](docs/images/positive-result.png)
+
+### Negative Sentiment Analysis
+
+Negative text is classified using the VADER NLP engine,
+with visual indicators representing the sentiment scores.
+
+![Negative Sentiment Analysis](docs/images/negative-result.png)
+
+### Neutral Sentiment Analysis
+
+Neutral statements are analysed and classified based on
+their compound sentiment score.
+
+![Neutral Sentiment Analysis](docs/images/neutral-result.png)
+
+### Dashboard Features
+
+- Real-time sentiment analysis
+- Interactive text input
+- Positive, negative and neutral classification
+- Visual sentiment breakdown
+- Compound sentiment scoring
+- Character counter and input validation
+- Responsive dark-themed interface
+- Frontend and backend API integration
+
+---
+
+
 ## Current Features
 
 - English text sentiment analysis

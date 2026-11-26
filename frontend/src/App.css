@@ -446,3 +446,29 @@ footer {
   }
 }
 
+/* Public Demo Mode */
+
+.demo-notice {
+  margin-top: 18px;
+  padding: 16px;
+  background: #172744;
+  border: 1px solid #334e75;
+  border-radius: 12px;
+  color: #93c5fd;
+  line-height: 1.6;
+}
+
+.demo-notice strong {
+  color: #bfdbfe;
+}
+
+.demo-notice p {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.engine-option:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

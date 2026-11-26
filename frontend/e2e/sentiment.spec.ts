@@ -27,6 +27,17 @@ const mlResult = {
 }
 
 test.beforeEach(async ({ page }) => {
+
+  await page.route('**/api/features', async (route) => {
+    await route.fulfill({
+      json: {
+        vader: true,
+        machine_learning: true,
+        comparison: true,
+      },
+    })
+  })
+
   await page.route('**/api/analyze', async (route) => {
     await route.fulfill({ json: vaderResult })
   })
@@ -321,4 +332,112 @@ test('mobile responsive layout', async ({ page }) => {
   })
 
   expect(hasHorizontalOverflow).toBe(false)
+})
+
+// Feature Availability Tests
+
+test('all engines are available when the model exists', async ({ page }) => {
+  await expect(page.getByText('DUAL ENGINE', {
+    exact: true,
+  })).toBeVisible()
+
+  await expect(page.getByRole('radio', {
+    name: /VADER NLP/,
+  })).toBeEnabled()
+
+  await expect(page.getByRole('radio', {
+    name: /Machine Learning/,
+  })).toBeEnabled()
+
+  await expect(page.getByRole('radio', {
+    name: /Compare Both Models/,
+  })).toBeEnabled()
+
+  await expect(page.getByRole('radio', {
+    name: /Compare Both Models/,
+  })).toBeChecked()
+
+  await expect(
+    page.getByText('Public Demo Mode', { exact: true })
+  ).not.toBeVisible()
+})
+
+test('public demo disables unavailable ML engines', async ({ page }) => {
+  await page.route('**/api/features', async (route) => {
+    await route.fulfill({
+      json: {
+        vader: true,
+        machine_learning: false,
+        comparison: false,
+      },
+    })
+  })
+
+  await page.reload()
+
+  await expect(
+    page.getByText('Public Demo Mode', { exact: true })
+  ).toBeVisible()
+
+  await expect(page.getByRole('radio', {
+    name: /VADER NLP/,
+  })).toBeChecked()
+
+  await expect(page.getByRole('radio', {
+    name: /VADER NLP/,
+  })).toBeEnabled()
+
+  await expect(page.getByRole('radio', {
+    name: /Machine Learning/,
+  })).toBeDisabled()
+
+  await expect(page.getByRole('radio', {
+    name: /Compare Both Models/,
+  })).toBeDisabled()
+
+  await page.getByLabel('Your text').fill(sample)
+
+  await page.getByRole('button', {
+    name: /Analyze with VADER/,
+  }).click()
+
+  await expect(page.getByRole('heading', {
+    name: 'Positive',
+    exact: true,
+  })).toBeVisible()
+})
+
+test('feature API failure falls back to VADER', async ({ page }) => {
+  await page.route('**/api/features', async (route) => {
+    await route.abort('failed')
+  })
+
+  await page.reload()
+
+  await expect(
+    page.getByText('Public Demo Mode', { exact: true })
+  ).toBeVisible()
+
+  await expect(page.getByRole('radio', {
+    name: /VADER NLP/,
+  })).toBeChecked()
+
+  await expect(page.getByRole('radio', {
+    name: /Machine Learning/,
+  })).toBeDisabled()
+
+  await expect(page.getByRole('radio', {
+    name: /Compare Both Models/,
+  })).toBeDisabled()
+
+  await page.getByLabel('Your text').fill(sample)
+
+  await page.getByRole('button', {
+    name: /Analyze with VADER/,
+  }).click()
+
+  await expect(page.getByRole('heading', {
+    name: 'Positive',
+    exact: true,
+  })).toBeVisible()
 })

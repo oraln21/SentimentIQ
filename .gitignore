@@ -230,3 +230,6 @@ __marimo__/
 # Trained model artifacts
 /models/*.joblib
 /models/*.pkl
+# Generated browser testing artifacts
+/test-results/
+/playwright-report/

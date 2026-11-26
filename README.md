@@ -1,4 +1,13 @@
 
+[![CI](https://github.com/oraln21/SentimentIQ/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/oraln21/SentimentIQ/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)
+![React](https://img.shields.io/badge/React-Frontend-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Scikit--learn-F7931E)
+![Playwright](https://img.shields.io/badge/Testing-Playwright-2EAD33)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
 <h1 align="center">🧠 SentimentIQ</h1>
 
 <h3 align="center">
@@ -26,25 +35,30 @@ The project combines sentiment analysis, REST API development and automated soft
 
 ---
 
-## Application Demo
 
-SentimentIQ provides an interactive dashboard for real-time
-sentiment analysis, combining a modern React interface
-with a Python FastAPI backend.
+## Application Showcase
+
+SentimentIQ combines rule-based Natural Language Processing
+and a custom-trained Machine Learning model in an interactive
+analytics dashboard.
 
 ### Positive Sentiment Analysis
 
-The application identifies positive emotions in English text
-and displays the compound sentiment score and sentiment breakdown.
-
-![Positive Sentiment Analysis](docs/images/positive-result.png)
+![Positive Model Comparison](docs/images/comparison-positive.png)
 
 ### Negative Sentiment Analysis
 
-Negative text is classified using the VADER NLP engine,
-with visual indicators representing the sentiment scores.
+![Negative Model Comparison](docs/images/comparison-negative.png)
 
-![Negative Sentiment Analysis](docs/images/negative-result.png)
+### Neutral Sentiment Analysis
+
+![Neutral Model Comparison](docs/images/comparison-neutral.png)
+
+The dashboard enables users to compare VADER NLP and
+Logistic Regression predictions, explore sentiment scores
+and identify agreement or disagreement between both models.
+
+---
 
 ### Neutral Sentiment Analysis
 
@@ -101,6 +115,9 @@ flowchart TD
     C --> D[VADER Sentiment Engine]
     D --> E[Sentiment Classification]
     E --> F[JSON Response]
+    For a detailed explanation of the system architecture,
+machine learning pipeline, API design and testing strategy,
+see the [System Architecture Documentation](docs/architecture.md).
 ```
 
 ## Project Structure
@@ -288,31 +305,29 @@ python -m ml.evaluate_model
 - Sarcasm and complex contextual meaning may reduce accuracy.
 
 
+
 ## Development Roadmap
 
 - [x] Project architecture
-- [x] NLP sentiment analysis engine
+- [x] VADER sentiment analysis engine
 - [x] FastAPI backend
-- [x] Input validation and error handling
+- [x] Input validation
 - [x] Automated backend testing
-- [x] React and TypeScript frontend
-- [x] Responsive user interface
-- [x] Frontend and backend integration
-- [x] Sentiment data visualisation
-- [x] Production build
-- [x] Application screenshots
-- [x] Dataset preparation and preprocessing
-- [x] TF-IDF feature extraction
+- [x] Dataset preparation
 - [x] Custom machine learning model training
 - [x] Model performance evaluation
-- [x] VADER and Logistic Regression comparison
-- [x] Confusion matrix visualisation
-- [ ] Machine learning API integration
-- [ ] Interactive model selection
-- [ ] Automated frontend testing
-- [ ] GitHub Actions CI/CD
+- [x] React and TypeScript frontend
+- [x] Dual engine integration
+- [x] Model comparison dashboard
+- [x] Playwright browser testing
+- [x] GitHub Actions continuous integration
+- [x] System architecture documentation
+- [ ] Final documentation and repository cleanup
 - [ ] Public application deployment
-
+- [ ] Live demonstration
+- [ ] Cross-domain model evaluation
+- [ ] Batch sentiment analysis
+- [ ] Advanced model explainability
 
 ## Author
 

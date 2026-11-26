@@ -168,6 +168,69 @@ Open the interactive API documentation:
 
 http://127.0.0.1:8001/docs
 
+
+## Docker Deployment
+
+SentimentIQ supports containerised deployment using a
+multi-stage Docker build that combines the React frontend
+and FastAPI backend into a single application image.
+
+### Build the Docker Image
+
+```bash
+docker build -t sentimentiq:1.1 .
+```
+
+### Run the Application
+
+```bash
+docker run -d \
+  --name sentimentiq-demo \
+  -p 127.0.0.1:8003:8000 \
+  sentimentiq:1.1
+```
+
+Open the application:
+
+- Dashboard: http://localhost:8003/app/
+- API documentation: http://localhost:8003/docs
+- Health endpoint: http://localhost:8003/health
+
+### Run with a Locally Trained Model
+
+If a compatible trained model is available in the local
+models directory, it can be mounted as a read-only volume.
+
+```bash
+docker run -d \
+  --name sentimentiq-ml \
+  -p 127.0.0.1:8005:8000 \
+  -v "$(pwd)/models:/app/models:ro" \
+  sentimentiq:1.1
+```
+
+The dataset and trained model are excluded from the
+public repository and Docker image pending verification
+of their distribution conditions.
+
+Without the trained model, VADER remains available.
+Machine learning and comparison endpoints return a
+controlled HTTP 503 response.
+
+### Deployment Features
+
+- Multi-stage Docker build
+- Single-server frontend and backend integration
+- Non-root application user
+- Automated container health checks
+- Pinned core machine learning dependencies
+- Read-only local model mounting
+- Graceful handling of unavailable models
+
+---
+
+
+
 ## API Endpoints
 
 | Method | Endpoint | Description |

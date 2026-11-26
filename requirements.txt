@@ -1,12 +1,12 @@
 fastapi
 uvicorn
 vaderSentiment
-scikit-learn
+scikit-learn==1.9.1
 pandas
-numpy
+numpy==2.5.5
 pytest
 httpx
 pyarrow
-joblib
+joblib==1.6.0
 matplotlib
 seaborn

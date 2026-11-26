@@ -1,5 +1,9 @@
 
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from backend.sentiment import analyze_sentiment
@@ -92,4 +96,61 @@ def compare_models(request: SentimentRequest):
             status_code=503,
             detail="Machine learning model is unavailable.",
         ) from error
+    
+# Production API routes
+
+app.add_api_route(
+    "/api/analyze",
+    analyze,
+    methods=["POST"],
+    include_in_schema=False,
+)
+
+app.add_api_route(
+    "/api/analyze/ml",
+    analyze_machine_learning,
+    methods=["POST"],
+    include_in_schema=False,
+)
+
+app.add_api_route(
+    "/api/analyze/compare",
+    compare_models,
+    methods=["POST"],
+    include_in_schema=False,
+)
+
+
+# Production frontend hosting
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = BASE_DIR / "frontend" / "dist"
+
+if FRONTEND_DIR.is_dir():
+    app.mount(
+        "/app",
+        StaticFiles(
+            directory=str(FRONTEND_DIR),
+            html=True,
+        ),
+        name="frontend",
+    )
+
+    @app.get("/favicon.svg", include_in_schema=False)
+    def frontend_favicon():
+        return FileResponse(
+            FRONTEND_DIR / "favicon.svg"
+        )
+
+    assets_dir = FRONTEND_DIR / "assets"
+
+    if assets_dir.is_dir():
+        app.mount(
+            "/assets",
+            StaticFiles(directory=str(assets_dir)),
+            name="frontend-assets",
+        )
+
+    
+    
 

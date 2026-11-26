@@ -1,5 +1,4 @@
-
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 type Sentiment = 'Positive' | 'Negative' | 'Neutral'
@@ -192,8 +191,56 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const [mlAvailable, setMlAvailable] = useState(false)
+  const [checkingFeatures, setCheckingFeatures] = useState(true)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function checkFeatures() {
+      try {
+        const response = await fetch('/api/features', {
+          signal: controller.signal,
+        })
+
+        if (!response.ok) {
+          throw new Error('Unable to check features.')
+        }
+
+        const data = await response.json()
+
+        const available =
+          data.machine_learning === true &&
+          data.comparison === true
+
+        setMlAvailable(available)
+        setEngine(available ? 'both' : 'vader')
+      } catch {
+        if (controller.signal.aborted) return
+
+        setMlAvailable(false)
+        setEngine('vader')
+      } finally {
+        if (!controller.signal.aborted) {
+          setCheckingFeatures(false)
+        }
+      }
+    }
+
+    void checkFeatures()
+
+    return () => controller.abort()
+  }, [])
+
+
+
   async function analyzeText() {
-    if (!text.trim() || loading) return
+    if (
+  !text.trim() ||
+  loading ||
+  checkingFeatures ||
+  (engine !== 'vader' && !mlAvailable)
+) return
 
     setLoading(true)
     setError('')
@@ -263,7 +310,13 @@ function App() {
           </div>
         </div>
 
-        <span className="badge">DUAL ENGINE</span>
+        <span className="badge">
+  {checkingFeatures
+    ? 'CHECKING ENGINES'
+    : mlAvailable
+      ? 'DUAL ENGINE'
+      : 'VADER DEMO'}
+</span>
       </header>
 
       <main className="container">
@@ -297,14 +350,21 @@ function App() {
                   engine === item.value ? 'selected' : ''
                 }`}
               >
-                <input
-                  type="radio"
-                  name="engine"
-                  value={item.value}
-                  checked={engine === item.value}
-                  disabled={loading}
-                  onChange={() => updateEngine(item.value)}
-                />
+
+<input
+  type="radio"
+  name="engine"
+  value={item.value}
+  checked={engine === item.value}
+  disabled={
+    loading ||
+    checkingFeatures ||
+    (item.value !== 'vader' && !mlAvailable)
+  }
+  onChange={() => updateEngine(item.value)}
+/>
+
+
 
                 <div>
                   <strong>{item.title}</strong>
@@ -313,6 +373,24 @@ function App() {
               </label>
             ))}
           </fieldset>
+
+{checkingFeatures && (
+  <p className="note" role="status">
+    Checking available analysis engines...
+  </p>
+)}
+
+{!checkingFeatures && !mlAvailable && (
+  <div className="demo-notice" role="status">
+    <strong>Public Demo Mode</strong>
+    <p>
+      VADER sentiment analysis is available.
+      Machine learning and model comparison
+      require a compatible trained model.
+    </p>
+  </div>
+)}
+
 
           {engine !== 'vader' && (
             <p className="note">
@@ -358,8 +436,13 @@ function App() {
           <button
             className="analyze-button"
             onClick={analyzeText}
-            disabled={loading || !text.trim()}
-          >
+            disabled={
+              loading ||
+              checkingFeatures ||
+               !text.trim() ||
+               (engine !== 'vader' && !mlAvailable)
+              }
+              >
             {loading
               ? 'Analyzing...'
               : engine === 'both'
@@ -504,4 +587,3 @@ function App() {
 }
 
 export default App
-

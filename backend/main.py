@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from backend.sentiment import analyze_sentiment
-from backend.ml_sentiment import analyze_ml_sentiment
+from backend.ml_sentiment import MODEL_PATH, analyze_ml_sentiment
 
 
 app = FastAPI(
@@ -37,6 +37,18 @@ def home():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+@app.get("/features")
+@app.get("/api/features", include_in_schema=False)
+def available_features():
+    """Report which sentiment analysis engines are available."""
+
+    ml_available = MODEL_PATH.is_file()
+
+    return {
+        "vader": True,
+        "machine_learning": ml_available,
+        "comparison": ml_available,
+    }
 
 
 @app.post("/analyze")

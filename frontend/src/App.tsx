@@ -2,26 +2,193 @@
 import { useState } from 'react'
 import './App.css'
 
-type AnalysisResult = {
+type Sentiment = 'Positive' | 'Negative' | 'Neutral'
+type Engine = 'vader' | 'ml' | 'both'
+
+type SentimentScores = {
+  positive: number
+  neutral: number
+  negative: number
+}
+
+type VaderResult = {
   text: string
-  sentiment: 'Positive' | 'Negative' | 'Neutral'
-  scores: {
-    positive: number
-    neutral: number
-    negative: number
+  sentiment: Sentiment
+  scores: SentimentScores & {
     compound: number
   }
 }
 
+type MLResult = {
+  text: string
+  model: string
+  sentiment: Sentiment
+  confidence: number
+  probabilities: SentimentScores
+}
+
+type ComparisonResult = {
+  text: string
+  vader: VaderResult
+  machine_learning: MLResult
+  agreement: boolean
+}
+
+type AnalysisResult =
+  | { engine: 'vader'; data: VaderResult }
+  | { engine: 'ml'; data: MLResult }
+  | { engine: 'both'; data: ComparisonResult }
+
 const examples = [
-  'I absolutely love this application!',
-  'This was a terrible experience.',
-  'The package arrived on Monday.',
+  "The company's profits increased significantly.",
+  'The company reported substantial financial losses.',
+  'The report was published on Monday.',
 ]
+
+const engines = [
+  {
+    value: 'vader',
+    title: 'VADER NLP',
+    description: 'Rule-based sentiment analysis',
+  },
+  {
+    value: 'ml',
+    title: 'Machine Learning',
+    description: 'Custom-trained Logistic Regression',
+  },
+  {
+    value: 'both',
+    title: 'Compare Both Models',
+    description: 'Side-by-side comparative analysis',
+  },
+] as const
+
+const endpoints: Record<Engine, string> = {
+  vader: '/api/analyze',
+  ml: '/api/analyze/ml',
+  both: '/api/analyze/compare',
+}
+
+function ScoreBreakdown({
+  scores,
+  title,
+  note,
+}: {
+  scores: SentimentScores
+  title: string
+  note: string
+}) {
+  return (
+    <div className="panel breakdown">
+      <h2>{title}</h2>
+
+      {(['positive', 'neutral', 'negative'] as const).map(
+        (name) => (
+          <div className="metric" key={name}>
+            <div className="metric-header">
+              <span>{name}</span>
+              <strong>
+                {(scores[name] * 100).toFixed(1)}%
+              </strong>
+            </div>
+
+            <div className="track">
+              <div
+                className={`fill ${name}`}
+                style={{
+                  width: `${scores[name] * 100}%`,
+                }}
+              />
+            </div>
+          </div>
+        )
+      )}
+
+      <small className="note">{note}</small>
+    </div>
+  )
+}
+
+function VaderCard({ result }: { result: VaderResult }) {
+  return (
+    <div className="engine-result">
+      <div className="engine-heading">
+        <h2>VADER NLP</h2>
+        <span>Rule-based analysis</span>
+      </div>
+
+      <div className="results-grid">
+        <div className="panel">
+          <span className="metric-label">
+            DETECTED SENTIMENT
+          </span>
+          <h2 className={result.sentiment.toLowerCase()}>
+            {result.sentiment}
+          </h2>
+        </div>
+
+        <div className="panel">
+          <span className="metric-label">
+            COMPOUND SCORE
+          </span>
+          <h2 className="score">
+            {result.scores.compound.toFixed(4)}
+          </h2>
+        </div>
+      </div>
+
+      <ScoreBreakdown
+        scores={result.scores}
+        title="Sentiment Breakdown"
+        note="VADER sentiment scores are not confidence probabilities."
+      />
+    </div>
+  )
+}
+
+function MLCard({ result }: { result: MLResult }) {
+  return (
+    <div className="engine-result">
+      <div className="engine-heading">
+        <h2>Logistic Regression</h2>
+        <span>Machine learning analysis</span>
+      </div>
+
+      <div className="results-grid">
+        <div className="panel">
+          <span className="metric-label">
+            DETECTED SENTIMENT
+          </span>
+          <h2 className={result.sentiment.toLowerCase()}>
+            {result.sentiment}
+          </h2>
+        </div>
+
+        <div className="panel">
+          <span className="metric-label">
+            ESTIMATED PROBABILITY
+          </span>
+          <h2 className="score">
+            {(result.confidence * 100).toFixed(2)}%
+          </h2>
+        </div>
+      </div>
+
+      <ScoreBreakdown
+        scores={result.probabilities}
+        title="Class Probabilities"
+        note="Estimated model probabilities are not guarantees of correctness. The model was trained on financial English text."
+      />
+    </div>
+  )
+}
 
 function App() {
   const [text, setText] = useState('')
-  const [result, setResult] = useState<AnalysisResult | null>(null)
+  const [engine, setEngine] = useState<Engine>('both')
+  const [result, setResult] =
+    useState<AnalysisResult | null>(null)
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -33,7 +200,7 @@ function App() {
     setResult(null)
 
     try {
-      const response = await fetch('/api/analyze', {
+      const response = await fetch(endpoints[engine], {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,15 +208,32 @@ function App() {
         body: JSON.stringify({ text }),
       })
 
-      if (!response.ok) {
-        throw new Error('Unable to analyze the text.')
+      if (response.status === 503) {
+        throw new Error(
+          'Machine learning model unavailable. Train the model locally first.'
+        )
       }
 
-      const data: AnalysisResult = await response.json()
-      setResult(data)
-    } catch {
+      if (!response.ok) {
+        throw new Error(
+          `Analysis failed (HTTP ${response.status}).`
+        )
+      }
+
+      const data = await response.json()
+
+      if (engine === 'vader') {
+        setResult({ engine: 'vader', data })
+      } else if (engine === 'ml') {
+        setResult({ engine: 'ml', data })
+      } else {
+        setResult({ engine: 'both', data })
+      }
+    } catch (err) {
       setError(
-        'Analysis failed. Please check that the backend server is running.'
+        err instanceof Error
+          ? err.message
+          : 'Analysis failed. Check the backend server.'
       )
     } finally {
       setLoading(false)
@@ -58,6 +242,12 @@ function App() {
 
   function updateText(value: string) {
     setText(value)
+    setResult(null)
+    setError('')
+  }
+
+  function updateEngine(value: Engine) {
+    setEngine(value)
     setResult(null)
     setError('')
   }
@@ -72,7 +262,8 @@ function App() {
             <small>INTELLIGENT TEXT ANALYTICS</small>
           </div>
         </div>
-        <span className="badge">NLP ENGINE</span>
+
+        <span className="badge">DUAL ENGINE</span>
       </header>
 
       <main className="container">
@@ -80,19 +271,61 @@ function App() {
           <span className="eyebrow">
             NATURAL LANGUAGE PROCESSING
           </span>
+
           <h1>
             Understand the emotion
             <br />
             <span>behind words.</span>
           </h1>
+
           <p>
-            Transform unstructured text into meaningful
-            sentiment insights with intelligent language analysis.
+            Explore intelligent sentiment insights using
+            rule-based NLP and machine learning.
           </p>
         </section>
 
         <section className="panel">
+          <h2>Select Analysis Engine</h2>
+
+          <fieldset className="engine-options">
+            <legend>Choose a sentiment analysis method</legend>
+
+            {engines.map((item) => (
+              <label
+                key={item.value}
+                className={`engine-option ${
+                  engine === item.value ? 'selected' : ''
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="engine"
+                  value={item.value}
+                  checked={engine === item.value}
+                  disabled={loading}
+                  onChange={() => updateEngine(item.value)}
+                />
+
+                <div>
+                  <strong>{item.title}</strong>
+                  <small>{item.description}</small>
+                </div>
+              </label>
+            ))}
+          </fieldset>
+
+          {engine !== 'vader' && (
+            <p className="note">
+              The machine learning model was trained on
+              financial English text and may be less
+              accurate in other domains.
+            </p>
+          )}
+        </section>
+
+        <section className="panel">
           <h2>Text Analysis</h2>
+
           <p>Enter English text to discover its sentiment.</p>
 
           <label htmlFor="analysis-text">
@@ -104,12 +337,15 @@ function App() {
             value={text}
             maxLength={5000}
             disabled={loading}
-            onChange={(event) => updateText(event.target.value)}
+            onChange={(event) =>
+              updateText(event.target.value)
+            }
             placeholder="Enter your text here..."
           />
 
           <div className="textarea-footer">
             <span>{text.length} / 5000 characters</span>
+
             <button
               className="text-button"
               disabled={loading}
@@ -124,11 +360,18 @@ function App() {
             onClick={analyzeText}
             disabled={loading || !text.trim()}
           >
-            {loading ? 'Analyzing...' : 'Analyze Sentiment →'}
+            {loading
+              ? 'Analyzing...'
+              : engine === 'both'
+                ? 'Compare Both Models →'
+                : engine === 'ml'
+                  ? 'Analyze with Machine Learning →'
+                  : 'Analyze with VADER →'}
           </button>
 
           <div className="examples">
-            <span>Try an example:</span>
+            <span>Try a financial example:</span>
+
             {examples.map((example, index) => (
               <button
                 key={example}
@@ -147,72 +390,112 @@ function App() {
           )}
         </section>
 
-        <section aria-live="polite">
-          {result ? (
-            <>
-              <div className="results-grid">
-                <div className="panel">
-                  <span className="metric-label">
-                    DETECTED SENTIMENT
-                  </span>
-                  <h2 className={result.sentiment.toLowerCase()}>
-                    {result.sentiment}
-                  </h2>
-                </div>
+        <section aria-live="polite" aria-busy={loading}>
+          {result?.engine === 'vader' && (
+            <VaderCard result={result.data} />
+          )}
 
-                <div className="panel">
-                  <span className="metric-label">
-                    COMPOUND SCORE
-                  </span>
-                  <h2 className="score">
-                    {result.scores.compound.toFixed(4)}
-                  </h2>
-                </div>
+          {result?.engine === 'ml' && (
+            <MLCard result={result.data} />
+          )}
+
+          {result?.engine === 'both' && (
+            <>
+              <div className="comparison-grid">
+                <VaderCard result={result.data.vader} />
+
+                <MLCard
+                  result={result.data.machine_learning}
+                />
               </div>
 
-              <div className="panel breakdown">
-                <h2>Sentiment Breakdown</h2>
+              <div
+                className={`panel agreement ${
+                  result.data.agreement
+                    ? 'agree'
+                    : 'disagree'
+                }`}
+              >
+                <h2>
+                  {result.data.agreement
+                    ? 'Both models agree'
+                    : 'Models disagree'}
+                </h2>
 
-                {(['positive', 'neutral', 'negative'] as const)
-                  .map((name) => (
-                    <div className="metric" key={name}>
-                      <div className="metric-header">
-                        <span>{name}</span>
-                        <strong>
-                          {(result.scores[name] * 100).toFixed(1)}%
-                        </strong>
-                      </div>
-                      <div className="track">
-                        <div
-                          className={`fill ${name}`}
-                          style={{
-                            width: `${result.scores[name] * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <p>
+                  {result.data.agreement
+                    ? 'Both engines predicted the same sentiment.'
+                    : 'The engines predicted different sentiments. Review the context and model limitations.'}
+                </p>
 
-                <small className="note">
-                  VADER sentiment scores are not confidence
-                  probabilities.
+                <small>
+                  Agreement does not guarantee a correct
+                  prediction.
                 </small>
               </div>
             </>
-          ) : (
+          )}
+
+          {!result && (
             <div className="panel empty-state">
               <h3>Analysis results</h3>
               <p>
-                Your sentiment insights will appear here
-                after analysis.
+                {loading
+                  ? 'Analyzing your text...'
+                  : 'Your sentiment insights will appear here after analysis.'}
               </p>
             </div>
           )}
         </section>
+
+        <section className="panel benchmark">
+          <span className="eyebrow">MODEL EVALUATION</span>
+
+          <h2>Performance Benchmark</h2>
+
+          <p>
+            Evaluated on 452 held-out Financial PhraseBank
+            test samples.
+          </p>
+
+          <div className="metric">
+            <div className="metric-header">
+              <span>Logistic Regression Accuracy</span>
+              <strong>88.72%</strong>
+            </div>
+
+            <div className="track">
+              <div
+                className="fill positive"
+                style={{ width: '88.72%' }}
+              />
+            </div>
+          </div>
+
+          <div className="metric">
+            <div className="metric-header">
+              <span>VADER Accuracy</span>
+              <strong>56.86%</strong>
+            </div>
+
+            <div className="track">
+              <div
+                className="fill benchmark-vader"
+                style={{ width: '56.86%' }}
+              />
+            </div>
+          </div>
+
+          <small className="note">
+            These benchmark results are specific to the
+            financial test dataset and do not represent
+            guaranteed accuracy on new text.
+          </small>
+        </section>
       </main>
 
       <footer>
-        SentimentIQ · Python · FastAPI · React · NLP
+        SentimentIQ · Python · FastAPI · React · NLP · ML
         <br />
         Designed for intelligent text analysis.
       </footer>
@@ -221,3 +504,4 @@ function App() {
 }
 
 export default App
+

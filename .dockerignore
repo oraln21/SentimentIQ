@@ -1,0 +1,38 @@
+
+# Version control
+.git
+.github
+
+# Python environment
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+
+# Frontend dependencies and build artifacts
+frontend/node_modules
+frontend/dist
+
+# Test reports
+**/playwright-report
+**/test-results
+
+# Local datasets and trained models
+data/
+models/
+
+# Documentation
+docs/
+
+# Environment files
+.env
+.env.*
+**/.env
+**/.env.*
+
+# macOS system files
+**/.DS_Store
+
+# Editor settings
+.vscode
+.idea
